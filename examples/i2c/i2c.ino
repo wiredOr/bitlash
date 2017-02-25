@@ -1,8 +1,10 @@
 /***
 
-	loudbitlash.pde:	Bitlash Serial Override Handler Test
+	i2c.ino:	Bitlash I2C Demo
 
-	Copyright (C) 2008-2012 Bill Roy
+  Copyright (C) 2017 Andreas Wurf
+
+	Bitlash Copyright (C) 2008-2012 Bill Roy
 
 	Permission is hereby granted, free of charge, to any person
 	obtaining a copy of this software and associated documentation
@@ -31,20 +33,37 @@
 #include "Wire.h"
 #include "bitlash.h"
 
-numvar setLoudness(void) {
-	(void)getarg(1);
+// ----------------------------------------------------------------
+
+numvar i2c_begin(void) {
+  if (getarg(0)) {
+    Wire.begin ((uint8_t)getarg(1));
+  }
+  else {
+    Wire.begin ();
+  }
 	return 0;
 }
 
+// ----------------------------------------------------------------
+
+numvar i2c_end(void) {
+  Wire.end();
+  return 0;
+}
+
+// ----------------------------------------------------------------
 
 void setup(void) {
 	initBitlash(57600);		// must be first to initialize serial port
 
-	// Register an extension function to control this charming behavior
-	addBitlashFunction("loud", (bitlash_function) setLoudness);
+	addBitlashFunction("i2cBegin", (bitlash_function) i2c_begin);
+  addBitlashFunction("i2cEnd", (bitlash_function) i2c_end);
 }
 
 void loop(void) {
 	runBitlash();
 }
+
+// ----------------------------------------------------------------
 
