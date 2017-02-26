@@ -48,8 +48,25 @@ numvar i2c_begin(void) {
 // ----------------------------------------------------------------
 
 numvar i2c_end(void) {
-  Wire.end();
+  Wire.end ();
   return 0;
+}
+
+// ----------------------------------------------------------------
+
+numvar i2c_beginTransmission(void) {
+  Wire.beginTransmission ((uint8_t)getarg(1));
+}
+
+// ----------------------------------------------------------------
+
+numvar i2c_endTransmission(void) {
+  if (getarg(0)) {
+    Wire.endTransmission ((uint8_t)getarg(1));
+  }
+  else {
+    Wire.endTransmission ();
+  }
 }
 
 // ----------------------------------------------------------------
@@ -59,6 +76,8 @@ void setup(void) {
 
 	addBitlashFunction("i2cBegin", (bitlash_function) i2c_begin);
   addBitlashFunction("i2cEnd", (bitlash_function) i2c_end);
+  addBitlashFunction("i2cTxBegin", (bitlash_function) i2c_beginTransmission);
+  addBitlashFunction("i2cTxEnd", (bitlash_function) i2c_endTransmission);
 }
 
 void loop(void) {
