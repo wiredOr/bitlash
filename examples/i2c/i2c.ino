@@ -35,49 +35,43 @@
 
 // ----------------------------------------------------------------
 
-numvar i2c_begin(void) {
-  if (getarg(0)) {
-    Wire.begin ((uint8_t)getarg(1));
+static numvar i2c_write_impl (bool stop) {
+  const auto argc = getarg (0);
+  if (argc >= 2) {
+    const auto address = getarg (1);
+    Wire.beginTransmission ((uint8_t)address);
+    // TODO: Wire.write()
+    Wire.endTransmission (stop);
   }
-  else {
-    Wire.begin ();
-  }
-	return 0;
-}
-
-// ----------------------------------------------------------------
-
-numvar i2c_end(void) {
-  Wire.end ();
   return 0;
 }
 
 // ----------------------------------------------------------------
 
-numvar i2c_beginTransmission(void) {
-  Wire.beginTransmission ((uint8_t)getarg(1));
+// arg1: I2C slave address
+// arg2..argN: data
+numvar i2c_writeln (void) {
+  return i2c_write_impl (true);
 }
 
 // ----------------------------------------------------------------
 
-numvar i2c_endTransmission(void) {
-  if (getarg(0)) {
-    Wire.endTransmission ((uint8_t)getarg(1));
-  }
-  else {
-    Wire.endTransmission ();
-  }
+// arg1: I2C slave address
+// arg2..argN: data
+numvar i2c_write (void) {
+  return i2c_write_impl (false);
 }
 
 // ----------------------------------------------------------------
 
 void setup(void) {
+  Wire.begin ();
+  
 	initBitlash(57600);		// must be first to initialize serial port
 
-	addBitlashFunction("i2cBegin", (bitlash_function) i2c_begin);
-  addBitlashFunction("i2cEnd", (bitlash_function) i2c_end);
-  addBitlashFunction("i2cTxBegin", (bitlash_function) i2c_beginTransmission);
-  addBitlashFunction("i2cTxEnd", (bitlash_function) i2c_endTransmission);
+  // TODO: Add I2C related Bitlash functions here.
+  addBitlashFunction ("i2cWrite", (bitlash_function) i2c_write);
+  addBitlashFunction ("i2cWriteln", (bitlash_function) i2c_writeln);
 }
 
 void loop(void) {
