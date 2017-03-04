@@ -1,6 +1,6 @@
 /***
 
-	i2c.ino:	Bitlash I2C Demo
+	i2c.ino:	Bitlash I2C Demo (Master)
 
   Copyright (C) 2017 Andreas Wurf
 
@@ -29,6 +29,8 @@
 
 ***/
 
+#include <string.h>
+
 #include "Arduino.h"
 #include "Wire.h"
 #include "bitlash.h"
@@ -41,6 +43,15 @@ static numvar i2c_write_impl (bool stop) {
     const auto address = getarg (1);
     Wire.beginTransmission ((uint8_t)address);
     // TODO: Wire.write()
+    for (numvar i = 2; i <= argc; i++) {
+      if (isstringarg (i)) {
+        auto text = (const char *)getstringarg (i);
+        Wire.write (text, strlen (text));
+      }
+      else {
+        Wire.write (getarg (i));
+      }
+    }
     Wire.endTransmission (stop);
   }
   return 0;
@@ -49,7 +60,7 @@ static numvar i2c_write_impl (bool stop) {
 // ----------------------------------------------------------------
 
 // arg1: I2C slave address
-// arg2..argN: data
+// arg2..argN: data (mixed numbers(0..255) and strings)
 numvar i2c_writeln (void) {
   return i2c_write_impl (true);
 }
@@ -57,7 +68,7 @@ numvar i2c_writeln (void) {
 // ----------------------------------------------------------------
 
 // arg1: I2C slave address
-// arg2..argN: data
+// arg2..argN: data (mixed numbers(0..255) and strings)
 numvar i2c_write (void) {
   return i2c_write_impl (false);
 }
