@@ -33,16 +33,19 @@
 
 #include "Arduino.h"
 #include "Wire.h"
+
 #include "bitlash.h"
+#include "src/bitlash.h"
 
 // ----------------------------------------------------------------
 
+// arg1: I2C slave address
+// arg2..argN: data (mixed numbers(0..255) and strings)
 static numvar i2c_write_impl (bool stop) {
   const auto argc = getarg (0);
   if (argc >= 2) {
     const auto address = getarg (1);
     Wire.beginTransmission ((uint8_t)address);
-    // TODO: Wire.write()
     for (numvar i = 2; i <= argc; i++) {
       if (isstringarg (i)) {
         auto text = (const char *)getstringarg (i);
@@ -60,19 +63,58 @@ static numvar i2c_write_impl (bool stop) {
 // ----------------------------------------------------------------
 
 // arg1: I2C slave address
-// arg2..argN: data (mixed numbers(0..255) and strings)
+// arg2: quantity
+// arg3*: internal address
+// arg4*: internal address size in bytes
+static numvar i2c_read_impl (bool stop) {
+  const auto argc = getarg (0);
+  if (argc >= 2) {
+    const auto address = getarg (1);
+    const auto quantity = getarg (2);
+    numvar iaddress = 0, isize = 0;
+    if (argc >= 3) {
+      iaddress = getarg (3);
+      isize = argc >= 4 ? getarg (4) : 1;
+      if (isize == 0) {
+        isize = 1;
+      }
+    }
+    Wire.requestFrom (address, quantity, iaddress, isize, stop);
+    while (Wire.available()) {
+      sp ("0x");
+      printIntegerInBase (Wire.read (), 16, 2, '0');
+      if (Wire.peek() != -1) {
+        spb (',');
+      }
+    }
+    speol ();
+  }
+  return 0;
+}
+
+// ----------------------------------------------------------------
+
 numvar i2c_writeln (void) {
   return i2c_write_impl (true);
 }
 
 // ----------------------------------------------------------------
 
-// arg1: I2C slave address
-// arg2..argN: data (mixed numbers(0..255) and strings)
 numvar i2c_write (void) {
   return i2c_write_impl (false);
 }
 
+// ----------------------------------------------------------------
+
+numvar i2c_read (void) {
+  return i2c_read_impl (false);
+}
+
+// ----------------------------------------------------------------
+
+numvar i2c_readln (void) {
+  return i2c_read_impl (true);
+}
 // ----------------------------------------------------------------
 
 void setup(void) {
@@ -83,6 +125,8 @@ void setup(void) {
   // TODO: Add I2C related Bitlash functions here.
   addBitlashFunction ("i2cWrite", (bitlash_function) i2c_write);
   addBitlashFunction ("i2cWriteln", (bitlash_function) i2c_writeln);
+  addBitlashFunction ("i2cRead", (bitlash_function) i2c_read);
+  addBitlashFunction ("i2cReadln", (bitlash_function) i2c_readln);
 }
 
 void loop(void) {
