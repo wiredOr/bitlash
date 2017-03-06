@@ -123,10 +123,10 @@ void setup(void) {
 	initBitlash(57600);		// must be first to initialize serial port
 
   // TODO: Add I2C related Bitlash functions here.
-  addBitlashFunction ("i2cWrite", (bitlash_function) i2c_write);
-  addBitlashFunction ("i2cWriteln", (bitlash_function) i2c_writeln);
-  addBitlashFunction ("i2cRead", (bitlash_function) i2c_read);
-  addBitlashFunction ("i2cReadln", (bitlash_function) i2c_readln);
+  addBitlashFunction ("i2cwrite", (bitlash_function) i2c_write);
+  addBitlashFunction ("i2cwriteln", (bitlash_function) i2c_writeln);
+  addBitlashFunction ("i2cread", (bitlash_function) i2c_read);
+  addBitlashFunction ("i2creadln", (bitlash_function) i2c_readln);
 }
 
 void loop(void) {
